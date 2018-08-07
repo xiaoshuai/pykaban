@@ -1,0 +1,3 @@
+server_url = 'https://localhost:8443'
+username = 'azkaban'
+password = 'azkaban'
