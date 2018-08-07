@@ -8,7 +8,7 @@ def interpolate_str(template, **data):
 
 def parser_response_content(response_content):
     import json
-    from pykaban.exceptions import AzkabanClientException
+    from . import AzkabanClientException
     response_content = response_content.decode('utf-8')
     resp = json.loads(response_content)
     if 'error' in resp:

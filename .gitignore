@@ -11,6 +11,7 @@ node_modules/
 .npm
 vv/
 venv/
+__pycache__/
 *.pyc
 *.egg-info
 *.log
@@ -20,4 +21,8 @@ dist
 npm-debug*
 /.tox
 .idea
+pykaban/__pycache__/
+pykaban/*.pyc
+tests/__pycache__/
+tests/*.pyc
 params.py

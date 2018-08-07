@@ -15,14 +15,19 @@ setup(
                  'Developed by xiaoshuai.'),
     long_description=io.open('README.md', encoding='utf-8').read(),
     install_requires=[
-        'requests>=2.12.5'
+        'click>=6.1',
+        'requests>=2.12.5',
     ],
-    url='github.com/xiaoshuai/azkabanpy',
+    url='github.com/xiaoshuai/pykaban',
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
         'Topic :: System :: Monitoring'
     ],
-    scripts=['pykaban.py'],
+    entry_points={
+        'console_scripts': [
+            'pykaban = pykaban.cli:deploy',
+        ],
+    },
 )

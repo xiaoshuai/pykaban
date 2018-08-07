@@ -44,7 +44,7 @@ class AjaxAPI(object):
             resp = _parser(response.content)
             if 'session.id' in resp:
                 self._session_id = resp['session.id']
-                print('[authenticate] success session.id={session_id}.'.format(session_id=self._session_id))
+                print('[pykaban][authenticate] success session.id={session_id}.'.format(session_id=self._session_id))
         except requests.exceptions.RequestException:
             print('HTTP Request failed')
 
@@ -54,7 +54,7 @@ class AjaxAPI(object):
         """
         try:
             response = requests.post(
-                url=self._server_url,
+                url=self._server_url + '/manager',
                 headers={
                     "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
                 },
@@ -69,7 +69,7 @@ class AjaxAPI(object):
             resp = _parser(response.content)
             if 'status' in resp and resp['status'] == 'success':
                 project_path = resp['path']
-                print('[create_project] success path={project_path}.'.format(project_path=project_path))
+                print('[pykaban][create_project] success path={project_path}.'.format(project_path=project_path))
                 return project_path
         except requests.exceptions.RequestException:
             print('HTTP Request failed')
@@ -91,7 +91,7 @@ class AjaxAPI(object):
                 },
             )
             assert response.status_code == 200
-            print('[delete_project] success project={project_name}.'.format(project_name=project_name))
+            print('[pykaban][delete_project] success project={project_name}.'.format(project_name=project_name))
         except requests.exceptions.RequestException:
             print('HTTP Request failed')
 
@@ -101,13 +101,36 @@ class AjaxAPI(object):
         """
         import os
         import zipfile
+
         if project_path.endswith('/'):
             project_path = project_path[0:len(project_path) - 1]
+        if not project_path.startswith('/'):
+            project_path = os.path.join(os.getcwd(), project_path)
+            project_path = os.path.realpath(project_path)
         if not project_name:
             project_name = os.path.basename(project_path)
         zipfile_realpath = project_path + '.zip'
         zipfile_basename = os.path.basename(zipfile_realpath)
         tmpfile = zipfile.ZipFile(zipfile_realpath, 'w')
+
+        def write2zipfile(realpath, writepath):
+            need_win_patch = False
+            if realpath.endswith('.sh'):
+                need_win_patch = True
+            if realpath.endswith('.job'):
+                need_win_patch = True
+            if need_win_patch:
+                with open(realpath, 'r') as f:
+                    data = f.read()
+                    newdata = data.replace("\r\n", "\n")
+                    if newdata != data:
+                        tmpfile.writestr(writepath, newdata)
+                        print('[pykaban][upload_project_zip] do win patch.')
+                    else:
+                        tmpfile.write(realpath, writepath)
+            else:
+                tmpfile.write(realpath, writepath)
+
         for basename_l1 in os.listdir(project_path):
             realpath_l1 = os.path.join(project_path, basename_l1)
             if os.path.isdir(realpath_l1):
@@ -116,13 +139,13 @@ class AjaxAPI(object):
                     if basename_l2.endswith('pyc'):
                         continue
                     if os.path.isfile(realpath_l2):
-                        tmpfile.write(realpath_l2, basename_l1 + '/' + basename_l2)
+                        write2zipfile(realpath_l2, basename_l1 + '/' + basename_l2)
             else:
-                tmpfile.write(realpath_l1, basename_l1)
+                write2zipfile(realpath_l1, basename_l1)
         tmpfile.close()
         try:
             response = requests.post(
-                url=self._server_url,
+                url=self._server_url + '/manager',
                 files={
                     "file": (zipfile_basename, open(zipfile_realpath, 'rb'), 'application/zip', {'Expires': '5'}),
                 },
@@ -133,12 +156,13 @@ class AjaxAPI(object):
                 },
             )
             assert response.status_code == 200
+            print('[pykaban][upload_project_zip] response content={content}.'.format(content=response.content))
             resp = _parser(response.content)
             os.remove(zipfile_realpath)
             if 'projectId' in resp and 'version' in resp:
                 project_id = resp['projectId']
                 project_version = resp['version']
-                print('[upload_project_zip] success projectId={project_id} version={project_version}.'
+                print('[pykaban][upload_project_zip] success projectId={project_id} version={project_version}.'
                       .format(project_id=project_id, project_version=project_version))
                 return project_id
         except requests.exceptions.RequestException:
@@ -214,7 +238,7 @@ class AjaxAPI(object):
 
             if 'status' in resp and resp['status'] == 'success':
                 schedule_id = resp['scheduleId']
-                print('[create_project] success path={schedule_id}.'.format(schedule_id=schedule_id))
+                print('[pykaban][create_project] success path={schedule_id}.'.format(schedule_id=schedule_id))
                 return schedule_id
         except requests.exceptions.RequestException:
             print('HTTP Request failed')
