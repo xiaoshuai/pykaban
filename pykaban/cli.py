@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 import sys
+
 if sys.version_info[0] == 2:
     reload(sys)
     sys.setdefaultencoding("utf-8")
@@ -25,7 +26,8 @@ def deploy(server_url, username, password, project_path, project_name):
         new_file.write("server_url = 'https://localhost:8443'\nusername = 'azkaban'\npassword = 'azkaban'\n")
         new_file.close()
     main_params = {}
-    exec(open(rc_file).read(), main_params)  # pylint: disable=exec-used
+    with open(rc_file) as f:
+        exec(f.read(), main_params)  # pylint: disable=exec-used
     if not server_url:
         server_url = main_params['server_url']
     if not username:
@@ -39,12 +41,23 @@ def deploy(server_url, username, password, project_path, project_name):
         project_path = os.path.realpath(project_path)
     click.echo('[pykaban][cli] finish init user ({username}) of azkaban({server_url}).'
                .format(username=username, server_url=server_url))
+    # deploy
     click.echo('[pykaban][cli] deploy ({project_path}) to azkaban({server_url}) start.'
                .format(project_path=project_path, server_url=server_url))
     ajax_api = pykaban.AjaxAPI(server_url=server_url, username=username, password=password)
     ajax_api.authenticate()
     ajax_api.upload_project_zip(project_path=project_path, project_name=project_name)
     click.echo('[pykaban][cli] deploy ({project_path}) to azkaban({server_url}) success.'
+               .format(project_path=project_path, server_url=server_url))
+
+    # schedule
+    click.echo('[pykaban][cli] schedule ({project_path}) to azkaban({server_url}) start.'
+               .format(project_path=project_path, server_url=server_url))
+    project_name, schedule_item_dict = ajax_api.upload_project_schedule(project_path=project_path,
+                                                                        project_name=project_name)
+    for (flow_name, cron_expression) in schedule_item_dict.items():
+        ajax_api.flexible_schedule(project_name=project_name, flow_name=flow_name, cron_expression=cron_expression)
+    click.echo('[pykaban][cli] schedule ({project_path}) to azkaban({server_url}) success.'
                .format(project_path=project_path, server_url=server_url))
 
 

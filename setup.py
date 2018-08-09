@@ -2,7 +2,8 @@ import io
 from setuptools import setup, find_packages
 
 main_ns = {}
-exec(open('pykaban/version.py').read(), main_ns)  # pylint: disable=exec-used
+with open('pykaban/version.py') as f:
+    exec(f.read(), main_ns)  # pylint: disable=exec-used
 
 setup(
     name='pykaban',
@@ -18,7 +19,7 @@ setup(
         'click>=6.1',
         'requests>=2.12.5',
     ],
-    url='github.com/xiaoshuai/pykaban',
+    url='https://github.com/xiaoshuai/pykaban',
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',

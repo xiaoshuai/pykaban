@@ -95,6 +95,40 @@ class AjaxAPI(object):
         except requests.exceptions.RequestException:
             print('HTTP Request failed')
 
+    @staticmethod
+    def upload_project_schedule(project_path, project_name=None):
+        """
+        上传项目Zip包之后，配置schedule相关信息
+        """
+        schedule_item_dict = {}
+        import os
+        if project_path.endswith('/'):
+            project_path = project_path[0:len(project_path) - 1]
+        if not project_path.startswith('/'):
+            project_path = os.path.join(os.getcwd(), project_path)
+            project_path = os.path.realpath(project_path)
+        if not project_name:
+            project_name = os.path.basename(project_path)
+        for basename_l1 in os.listdir(project_path):
+            realpath_l1 = os.path.join(project_path, basename_l1)
+            if basename_l1 == 'schedule.txt':
+                with open(realpath_l1) as f:
+                    schedule_lines = f.readlines()
+                    for schedule_line in schedule_lines:
+                        if schedule_line.strip().startswith("#") :
+                            continue
+                        schedule_line_split = schedule_line.split(':')
+                        if len(schedule_line_split) != 2:
+                            print('[pykaban][upload_project_schedule] error content={line}'.format(line=schedule_line))
+                            continue
+                        flow_name = schedule_line_split[0].strip()
+                        cron_expression = schedule_line_split[1].strip()
+                        print('[pykaban][upload_project_schedule] success parser "{flow_name}:{cron_expression}".'
+                              .format(flow_name=flow_name, cron_expression=cron_expression))
+                        schedule_item_dict[flow_name] = cron_expression
+                print('[pykaban][upload_project_schedule] success parser schedule.txt file.')
+        return project_name, schedule_item_dict
+
     def upload_project_zip(self, project_path, project_name=None):
         """
         上传项目Zip包
@@ -228,7 +262,7 @@ class AjaxAPI(object):
                 data={
                     "session.id": self._session_id,
                     "ajax": "scheduleCronFlow",
-                    "name": project_name,
+                    "projectName": project_name,
                     "flow": flow_name,
                     "cronExpression": cron_expression,
                 },
@@ -238,7 +272,8 @@ class AjaxAPI(object):
 
             if 'status' in resp and resp['status'] == 'success':
                 schedule_id = resp['scheduleId']
-                print('[pykaban][create_project] success path={schedule_id}.'.format(schedule_id=schedule_id))
+                print('[pykaban][create_project] success scheduleId={schedule_id}, message="{message}".'
+                      .format(schedule_id=schedule_id, message=resp['message']))
                 return schedule_id
         except requests.exceptions.RequestException:
             print('HTTP Request failed')
