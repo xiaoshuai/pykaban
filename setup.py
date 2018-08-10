@@ -14,7 +14,7 @@ setup(
     license='MIT',
     description=('A Python client for Azkaban AJAX API with lite enhancement.'
                  'Developed by xiaoshuai.'),
-    long_description=io.open('README.md', encoding='utf-8').read(),
+    long_description=io.open('README.rst', encoding='utf-8').read(),
     install_requires=[
         'click>=6.1',
         'requests>=2.12.5',
