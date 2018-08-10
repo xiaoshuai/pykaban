@@ -154,7 +154,7 @@ class AjaxAPI(object):
             if realpath.endswith('.job'):
                 need_win_patch = True
             if need_win_patch:
-                with open(realpath, 'r') as f:
+                with open(realpath, 'r', encoding='utf-8') as f:
                     data = f.read()
                     newdata = data.replace("\r\n", "\n")
                     if newdata != data:
