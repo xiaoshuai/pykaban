@@ -154,14 +154,22 @@ class AjaxAPI(object):
             if realpath.endswith('.job'):
                 need_win_patch = True
             if need_win_patch:
-                with open(realpath, 'r', encoding='utf-8') as f:
+                import sys
+                if sys.version_info[0] == 2:
+                    f = open(realpath, 'rb')
                     data = f.read()
-                    newdata = data.replace("\r\n", "\n")
-                    if newdata != data:
-                        tmpfile.writestr(writepath, newdata)
-                        print('[pykaban][upload_project_zip] do win patch.')
-                    else:
-                        tmpfile.write(realpath, writepath)
+                    data = data.decode('utf-8')
+                    f.close()
+                else:
+                    f = open(realpath, 'r', encoding='utf-8')
+                    data = f.read()
+                    f.close()
+                data_replaced = data.replace("\r\n", "\n")
+                if data_replaced != data:
+                    tmpfile.writestr(writepath, data_replaced)
+                    print('[pykaban][upload_project_zip] do win patch.')
+                else:
+                    tmpfile.write(realpath, writepath)
             else:
                 tmpfile.write(realpath, writepath)
 
@@ -198,10 +206,11 @@ class AjaxAPI(object):
                 project_version = resp['version']
                 print('[pykaban][upload_project_zip] success projectId={project_id} version={project_version}.'
                       .format(project_id=project_id, project_version=project_version))
-                return project_id
+                return project_name, project_id
         except requests.exceptions.RequestException:
             print('HTTP Request failed')
             os.remove(zipfile_realpath)
+        return project_name, -1
 
     def fetch_flows_of_project(self):
         """

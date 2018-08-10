@@ -46,9 +46,9 @@ def deploy(server_url, username, password, project_path, project_name):
                .format(project_path=project_path, server_url=server_url))
     ajax_api = pykaban.AjaxAPI(server_url=server_url, username=username, password=password)
     ajax_api.authenticate()
-    ajax_api.upload_project_zip(project_path=project_path, project_name=project_name)
-    click.echo('[pykaban][cli] deploy ({project_path}) to azkaban({server_url}) success.'
-               .format(project_path=project_path, server_url=server_url))
+    project_name, project_id = ajax_api.upload_project_zip(project_path=project_path, project_name=project_name)
+    click.echo('[pykaban][cli] deploy {server_url}/manager?project={project_name} success.'
+               .format(server_url=server_url, project_name=project_name))
 
     # schedule
     click.echo('[pykaban][cli] schedule ({project_path}) to azkaban({server_url}) start.'
@@ -57,8 +57,10 @@ def deploy(server_url, username, password, project_path, project_name):
                                                                         project_name=project_name)
     for (flow_name, cron_expression) in schedule_item_dict.items():
         ajax_api.flexible_schedule(project_name=project_name, flow_name=flow_name, cron_expression=cron_expression)
-    click.echo('[pykaban][cli] schedule ({project_path}) to azkaban({server_url}) success.'
-               .format(project_path=project_path, server_url=server_url))
+        click.echo('[pykaban][cli] schedule {server_url}/manager?project={project_name}&flow={flow_name} success.'
+               .format(server_url=server_url, project_name=project_name, flow_name=flow_name))
+    click.echo('[pykaban][cli] schedule {server_url}/manager?project={project_name} success.'
+               .format(server_url=server_url, project_name=project_name))
 
 
 if __name__ == '__main__':
