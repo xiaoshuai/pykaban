@@ -34,6 +34,8 @@ def deploy(server_url, username, password, project_path, project_name):
         username = main_params['username']
     if not password:
         password = main_params['password']
+    if server_url.endswith('/'):
+        server_url = server_url[0:len(server_url) - 1]
     if project_path.endswith('/'):
         project_path = project_path[0:len(project_path) - 1]
     if not project_path.startswith('/'):

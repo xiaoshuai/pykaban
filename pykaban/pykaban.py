@@ -40,8 +40,8 @@ class AjaxAPI(object):
                     "password": self._password,
                 },
             )
-            assert response.status_code == 200
             resp = _parser(response.content)
+            assert response.status_code == 200
             if 'session.id' in resp:
                 self._session_id = resp['session.id']
                 print('[pykaban][authenticate] success session.id={session_id}.'.format(session_id=self._session_id))
@@ -65,8 +65,8 @@ class AjaxAPI(object):
                     "description": project_description,
                 },
             )
-            assert response.status_code == 200
             resp = _parser(response.content)
+            assert response.status_code == 200
             if 'status' in resp and resp['status'] == 'success':
                 project_path = resp['path']
                 print('[pykaban][create_project] success path={project_path}.'.format(project_path=project_path))
@@ -197,9 +197,9 @@ class AjaxAPI(object):
                     "project": project_name,
                 },
             )
-            assert response.status_code == 200
             print('[pykaban][upload_project_zip] response content={content}.'.format(content=response.content))
             resp = _parser(response.content)
+            assert response.status_code == 200
             os.remove(zipfile_realpath)
             if 'projectId' in resp and 'version' in resp:
                 project_id = resp['projectId']
@@ -276,8 +276,8 @@ class AjaxAPI(object):
                     "cronExpression": cron_expression,
                 },
             )
-            assert response.status_code == 200
             resp = _parser(response.content)
+            assert response.status_code == 200
 
             if 'status' in resp and resp['status'] == 'success':
                 schedule_id = resp['scheduleId']
