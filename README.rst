@@ -18,6 +18,10 @@ Create Flow with Pythonic API
 ----------------------------------------
 规划中
 
+Customized Account Support
+----------------------------------------
+* 用户账户在``$HOME/.pykabanrc``下可以配置
+
 Flow Schedule Support
 ----------------------------------------
 * 自动解析工程目录下的 schedule.txt 文件，格式``flowname: 0 15 8 * * ? *``，并配置作业调度
