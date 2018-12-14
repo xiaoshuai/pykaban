@@ -165,11 +165,7 @@ class AjaxAPI(object):
                     data = f.read()
                     f.close()
                 data_replaced = data.replace("\r\n", "\n")
-                if data_replaced != data:
-                    tmpfile.writestr(writepath, data_replaced)
-                    print('[pykaban][upload_project_zip] do win patch.')
-                else:
-                    tmpfile.write(realpath, writepath)
+                tmpfile.writestr(writepath, data_replaced)
             else:
                 tmpfile.write(realpath, writepath)
 
