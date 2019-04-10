@@ -5,6 +5,9 @@ pykaban
 * 使用Python管理阿兹卡班流程调度
 
 
+**因UTF-8编码，暂不支持Python 2**
+
+
 A Python client for Azkaban AJAX API
 ----------------------------------------
 目前已经完成如下接口
