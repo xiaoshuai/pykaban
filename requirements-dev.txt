@@ -1,4 +1,4 @@
 click
 requests
 pylint==2.1.0
-Scrapy==1.5.1
+Scrapy==1.8.1
